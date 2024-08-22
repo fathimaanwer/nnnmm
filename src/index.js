@@ -8,9 +8,10 @@ import LoginForm from './loginform';
 import DoctorForm from './doctoreg';
 import AppointmentForm from './appoiintment1';
 import RegistrationForm  from'./patientreg';
-import AdminPage from './adminmenu';
 import PendingDoctors from './pendingdoc';
 import DoctorLoginForm from './doctorlogg';
+import AdminPage from './AdminPage';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 ReactDOM.render(

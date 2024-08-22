@@ -1,7 +1,7 @@
 const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
-const cors = require('cors'); // Import cors package
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -11,13 +11,21 @@ app.use(cors()); // Enable CORS for all routes
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// MySQL Connection Pool
-const pool = mysql.createPool({
-  connectionLimit: 10,
+// MySQL Connection
+const db = mysql.createConnection({
   host: 'localhost',
   user: 'root', // Replace with your MySQL username
   password: '', // Replace with your MySQL password
   database: 'hospital', // Replace with your database name
+});
+
+// Connect to MySQL
+db.connect((err) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+    process.exit(1); // Exit the application if the connection fails
+  }
+  console.log('Connected to the MySQL database.');
 });
 
 // API endpoint for user login
@@ -30,7 +38,7 @@ app.post('/api/login', (req, res) => {
   }
 
   // Query database
-  pool.query(
+  db.query(
     'SELECT * FROM users WHERE username = ? AND password = ?',
     [username, password],
     (error, results) => {
@@ -50,10 +58,7 @@ app.post('/api/login', (req, res) => {
   );
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+// API endpoint to get all doctors
 app.get('/api/doctors', (req, res) => {
   const sql = 'SELECT * FROM doctoreg';
   db.query(sql, (err, results) => {
@@ -65,6 +70,7 @@ app.get('/api/doctors', (req, res) => {
   });
 });
 
+// API endpoint to approve a doctor
 app.put('/api/doctors/approve', (req, res) => {
   const { name, specialization } = req.body;
   const sql = 'UPDATE doctoreg SET status = ? WHERE name = ? AND specialization = ?';
@@ -77,6 +83,7 @@ app.put('/api/doctors/approve', (req, res) => {
   });
 });
 
+// API endpoint to reject a doctor
 app.put('/api/doctors/reject', (req, res) => {
   const { name, specialization } = req.body;
   const sql = 'UPDATE doctoreg SET status = ? WHERE name = ? AND specialization = ?';
@@ -88,17 +95,105 @@ app.put('/api/doctors/reject', (req, res) => {
     res.json({ message: 'Doctor rejected successfully' });
   });
 });
-app.post('/doctoreg', (req, res) => {
-  const formData = req.body;
 
-  // Insert into MySQL table
-  connection.query('INSERT INTO doctoreg SET ?', formData, (err, results) => {
+// API endpoint to register a doctor
+app.post('/doctoreg', (req, res) => {
+  console.log("working back")
+  const { 
+      firstName, lastName, phone, email, address, locality, 
+      age, gender, nationality, dob, education, 
+      higherQualification, password 
+  } = req.body;
+
+  const sql = `
+      INSERT INTO doctoreg 
+      (firstName, lastName, Phone, Email, Address, Locality, 
+      Age, Gender, Nationality, DOB, EducationQualification, 
+      HigherQualification, password) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const values = [
+      firstName, lastName, phone, email, address, locality, 
+      age, gender, nationality, dob, education, 
+      higherQualification, password
+  ];
+
+  db.query(sql, values, (err, result) => {
+    
       if (err) {
-          console.error('Error inserting into database:', err);
-          res.status(500).send('Error inserting into database');
-          return;
-      }
-      console.log('Inserted:', results);
-      res.status(200).send('Inserted into database');
+        if (err.code === 'ER_DUP_ENTRY') {
+            console.log('Duplicate entry error:', err);
+            return res.status(400).json({ error: 'Duplicate entry' });
+        }
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+
+      res.status(200).json({ message: 'Doctor registered successfully!' });
   });
+});
+
+
+
+
+app.post('/api/admin/login', (req, res) => {
+  const { email, password } = req.body;
+
+  const query = 'SELECT * FROM admin WHERE email = ? AND password = ?';
+  db.query(query, [email, password], (err, results) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      return res.status(500).send({ success: false, message: 'Internal Server Error' });
+    }
+
+    if (results.length > 0) {
+      res.send({ success: true, message: 'Admin logged in successfully' });
+    } else {
+      res.send({ success: false, message: 'Invalid credentials' });
+    }
+  });
+});
+
+// Login route for Doctor
+app.post('/api/doctor/login', (req, res) => {
+  const { email, password } = req.body;
+
+  const query = 'SELECT * FROM doctoreg WHERE email = ? AND password = ?';
+  db.query(query, [email, password], (err, results) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      return res.status(500).send({ success: false, message: 'Internal Server Error' });
+    }
+
+    if (results.length > 0) {
+      res.send({ success: true, message: 'Doctor logged in successfully' });
+    } else {
+      res.send({ success: false, message: 'Invalid credentials' });
+    }
+  });
+});
+
+// Login route for Patient
+app.post('/api/patient/login', (req, res) => {
+  const { email, password } = req.body;
+
+  const query = 'SELECT * FROM patient WHERE email = ? AND password = ?';
+  db.query(query, [email, password], (err, results) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      return res.status(500).send({ success: false, message: 'Internal Server Error' });
+    }
+
+    if (results.length > 0) {
+      res.send({ success: true, message: 'Patient logged in successfully' });
+    } else {
+      res.send({ success: false, message: 'Invalid credentials' });
+    }
+  });
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

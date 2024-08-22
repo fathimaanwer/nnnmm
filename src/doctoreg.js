@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios'; // Axios for making HTTP requests
-
+import './doctorForm.css'; // Import the new CSS file
+import { useNavigate } from 'react-router-dom';
+import Button from 'react-bootstrap/Button';
 const DoctorForm = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -14,9 +16,14 @@ const DoctorForm = () => {
     const [dob, setDob] = useState('');
     const [education, setEducation] = useState('');
     const [higherQualification, setHigherQualification] = useState('');
-
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [message, setMessage] = useState('');
+    const navigate = useNavigate();
     const handleSubmit = async (event) => {
         event.preventDefault();
+        
+        // You may want to add validation for password and confirmPassword match here
         
         const formData = {
             firstName,
@@ -30,34 +37,40 @@ const DoctorForm = () => {
             nationality,
             dob,
             education,
-            higherQualification
+            higherQualification,
+            password,  // Include the password in the form data
+            confirmPassword  // Optionally, send confirmPassword for backend validation
         };
 
-        try {
-            // Send POST request to backend API
+       try {
             const response = await axios.post('http://localhost:5000/doctoreg', formData);
-            console.log(response.data); // Log the response from the server
-            // Optionally, reset form fields after successful submission
-            // setFirstName('');
-            // setLastName('');
-            // ...
-        } catch (error) {
-            console.error('Error submitting form:', error);
+            setMessage(response.data.message); // Display the success message from the server
+        } catch (err) {
+            
+
+            if (err.response && err.response.data && err.response.data.error === 'Duplicate entry') {
+                setMessage("Error: Email address already in use. Please use a different email.");
+            } else {
+                setMessage("Error: Sign in failed. Please try again.");
+            }
+            console.error("Error:", err);
         }
     };
-
+    const handleBack = () => {
+        navigate(-1); // Navigate back to the previous page
+    };
     return (
-        <div className="main">
-            <div className="icon">
-                <h2 className="logo">Care&Cure</h2>
+        <div className="form-main">
+            <div className="form-header">
+                <h2 className="form-logo">Care&Cure</h2>
+                <h5 className="form-title">Doctor Registration Form</h5>
+                <Button variant="secondary" onClick={handleBack}>Back</Button>{' '}<br/>
             </div>
-
-            <header><b><h5>Doctor Registration Form</h5></b></header>
-
-            <div className="container" style={{ marginLeft: '10%', marginTop: '5%' }}>
+            <br/>
+            <div className="form-container">
                 <form onSubmit={handleSubmit}>
-                    <div className="main-container" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-                        <div className="inner-container">
+                    <div className="form-row">
+                        <div className="form-group">
                             <label htmlFor="firstName">First Name *</label>
                             <input 
                                 type="text" 
@@ -66,9 +79,10 @@ const DoctorForm = () => {
                                 placeholder="Enter your first name" 
                                 value={firstName} 
                                 onChange={(e) => setFirstName(e.target.value)} 
+                                required
                             />
                         </div>
-                        <div className="inner-container">
+                        <div className="form-group">
                             <label htmlFor="lastName">Last Name *</label>
                             <input 
                                 type="text" 
@@ -77,9 +91,10 @@ const DoctorForm = () => {
                                 placeholder="Enter your last name" 
                                 value={lastName} 
                                 onChange={(e) => setLastName(e.target.value)} 
+                                required
                             />
                         </div>
-                        <div className="inner-container">
+                        <div className="form-group">
                             <label htmlFor="phone">Phone/Mobile *</label>
                             <input 
                                 type="text" 
@@ -88,12 +103,13 @@ const DoctorForm = () => {
                                 placeholder="Enter your phone or mobile number" 
                                 value={phone} 
                                 onChange={(e) => setPhone(e.target.value)} 
+                                required
                             />
                         </div>
                     </div>
 
-                    <div className="main-container" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
-                        <div className="inner-container">
+                    <div className="form-row">
+                        <div className="form-group">
                             <label htmlFor="email">Email *</label>
                             <input 
                                 type="email" 
@@ -102,9 +118,10 @@ const DoctorForm = () => {
                                 placeholder="Enter your email address" 
                                 value={email} 
                                 onChange={(e) => setEmail(e.target.value)} 
+                                required
                             />
                         </div>
-                        <div className="inner-container">
+                        <div className="form-group">
                             <label htmlFor="address">Permanent Address *</label>
                             <input 
                                 type="text" 
@@ -113,9 +130,10 @@ const DoctorForm = () => {
                                 placeholder="Enter your permanent address" 
                                 value={address} 
                                 onChange={(e) => setAddress(e.target.value)} 
+                                required
                             />
                         </div>
-                        <div className="inner-container">
+                        <div className="form-group">
                             <label htmlFor="locality">Locality *</label>
                             <input 
                                 type="text" 
@@ -124,12 +142,13 @@ const DoctorForm = () => {
                                 placeholder="Enter your locality" 
                                 value={locality} 
                                 onChange={(e) => setLocality(e.target.value)} 
+                                required
                             />
                         </div>
                     </div>
 
-                    <div className="main-container" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
-                        <div className="inner-container">
+                    <div className="form-row">
+                        <div className="form-group">
                             <label htmlFor="age">Age *</label>
                             <input 
                                 type="text" 
@@ -138,9 +157,10 @@ const DoctorForm = () => {
                                 placeholder="Enter your age" 
                                 value={age} 
                                 onChange={(e) => setAge(e.target.value)} 
+                                required
                             />
                         </div>
-                        <div className="inner-container">
+                        <div className="form-group">
                             <label htmlFor="gender">Gender *</label>
                             <input 
                                 type="text" 
@@ -149,9 +169,10 @@ const DoctorForm = () => {
                                 placeholder="Enter your gender" 
                                 value={gender} 
                                 onChange={(e) => setGender(e.target.value)} 
+                                required
                             />
                         </div>
-                        <div className="inner-container">
+                        <div className="form-group">
                             <label htmlFor="nationality">Nationality *</label>
                             <input 
                                 type="text" 
@@ -160,23 +181,25 @@ const DoctorForm = () => {
                                 placeholder="Enter your nationality" 
                                 value={nationality} 
                                 onChange={(e) => setNationality(e.target.value)} 
+                                required
                             />
                         </div>
                     </div>
 
-                    <div className="main-container" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
-                        <div className="inner-container">
+                    <div className="form-row">
+                        <div className="form-group">
                             <label htmlFor="dob">Date of Birth *</label>
                             <input 
-                                type="text" 
+                                type="date" 
                                 id="dob" 
                                 name="dob" 
-                                placeholder="Enter your date of birth (dd/mm/yy)" 
+                                placeholder="Enter your date of birth" 
                                 value={dob} 
                                 onChange={(e) => setDob(e.target.value)} 
+                                required
                             />
                         </div>
-                        <div className="inner-container">
+                        <div className="form-group">
                             <label htmlFor="education">Educational Qualification *</label>
                             <input 
                                 type="text" 
@@ -185,9 +208,10 @@ const DoctorForm = () => {
                                 placeholder="Enter your educational qualification" 
                                 value={education} 
                                 onChange={(e) => setEducation(e.target.value)} 
+                                required
                             />
                         </div>
-                        <div className="inner-container">
+                        <div className="form-group">
                             <label htmlFor="higherQualification">Higher Qualification *</label>
                             <input 
                                 type="text" 
@@ -195,15 +219,45 @@ const DoctorForm = () => {
                                 name="higherQualification" 
                                 placeholder="Enter your higher qualification" 
                                 value={higherQualification} 
-                                onChange={(e) => setHigherQualification(e.target.value)} 
+                                onChange={(e) => setHigherQualification(e.target.value)}
+                                required 
                             />
                         </div>
                     </div>
 
-                    <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-                        <button type="submit" className="but">Submit</button>
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label htmlFor="password">Password *</label>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                placeholder="Enter your password" 
+                                value={password} 
+                                onChange={(e) => setPassword(e.target.value)} 
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="confirmPassword">Confirm Password *</label>
+                            <input 
+                                type="password" 
+                                id="confirmPassword" 
+                                name="confirmPassword" 
+                                placeholder="Confirm your password" 
+                                value={confirmPassword} 
+                                onChange={(e) => setConfirmPassword(e.target.value)} 
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="form-submit">
+                        <button type="submit" className="submit-button">Submit</button>
                     </div>
                 </form>
+                {message && <p className="mt-3 text-center">{message}</p>}
+
             </div>
         </div>
     );
