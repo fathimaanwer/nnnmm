@@ -34,7 +34,7 @@ function App() {
         </div>
         <div className="action-buttons">
           <button className="main-button">Find a Doctor</button>
-          <Link to="/appointment1">
+          <Link to="/patientregistration">
             <button className="main-button">Book an Appointment</button>
           </Link>
         </div>

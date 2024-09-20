@@ -3,12 +3,12 @@ import { Button, Table, Container, Row, Col, Card, Nav } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 import './AdminPage.css'; // Import custom CSS
-
+import { useNavigate } from 'react-router-dom';
 const AdminPage = () => {
   const [doctors, setDoctors] = useState([]);
   const [patients, setPatients] = useState([]);
   const [view, setView] = useState('home'); // default view
-
+  const navigate = useNavigate();
   useEffect(() => {
     fetchDoctors();
     fetchPatients();
@@ -22,6 +22,9 @@ const AdminPage = () => {
       console.error('Error fetching doctors:', error);
     }
   };
+  const handleBack = () => {
+    navigate(-1); // Navigate back to the previous page
+};
 
   const fetchPatients = async () => {
     try {
@@ -34,7 +37,7 @@ const AdminPage = () => {
 
   const approveDoctor = async (doctorId) => {
     try {
-      const response = await axios.post(`/api/doctors/approve/${doctorId}`);
+      const response = await axios.put(`http://localhost:5000/api/doctors/approve/${doctorId}`);
       if (response.data.success) {
         alert('Doctor approved successfully');
         fetchDoctors(); // Refresh the list after approval
@@ -43,10 +46,11 @@ const AdminPage = () => {
       console.error('Error approving doctor:', error);
     }
   };
+  
 
   const rejectDoctor = async (doctorId) => {
     try {
-      const response = await axios.post(`/api/doctors/reject/${doctorId}`);
+      const response = await axios.put(`http://localhost:5000/api/doctors/reject/${doctorId}`);
       if (response.data.success) {
         alert('Doctor rejected successfully');
         fetchDoctors(); // Refresh the list after rejection
@@ -55,84 +59,90 @@ const AdminPage = () => {
       console.error('Error rejecting doctor:', error);
     }
   };
+  
 
   const renderContent = () => {
     switch (view) {
       case 'viewDoctors':
         return (
           <Card>
-            <Card.Body>
-              <h3>Doctor List</h3>
-              <div className="table-responsive">
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>First Name</th>
-                      <th>Last Name</th>
-                      <th>Phone</th>
-                      <th>Email</th>
-                      <th>Address</th>
-                      <th>Locality</th>
-                      <th>Age</th>
-                      <th>Gender</th>
-                      <th>Nationality</th>
-                      <th>DOB</th>
-                      <th>Education Qualification</th>
-                      <th>Higher Qualification</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {doctors.map((doctor) => (
+          <Card.Body>
+            <h3>Doctor List</h3>
+            <div className="table-responsive">
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>Locality</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Nationality</th>
+                    <th>DOB</th>
+                    <th>Education Qualification</th>
+                    <th>Higher Qualification</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {doctors
+                    .filter((doctor) => doctor.status === 'approved')
+                    .map((doctor) => (
                       <tr key={doctor.id}>
                         <td>{doctor.id}</td>
                         <td>{doctor.firstName}</td>
                         <td>{doctor.lastName}</td>
-                        <td>{doctor.phone}</td>
-                        <td>{doctor.email}</td>
-                        <td>{doctor.address}</td>
-                        <td>{doctor.locality}</td>
-                        <td>{doctor.age}</td>
-                        <td>{doctor.gender}</td>
-                        <td>{doctor.nationality}</td>
-                        <td>{doctor.dob}</td>
-                        <td>{doctor.educationQualification}</td>
-                        <td>{doctor.higherQualification}</td>
+                        <td>{doctor.Phone}</td>
+                        <td>{doctor.Email}</td>
+                        <td>{doctor.Address}</td>
+                        <td>{doctor.Locality}</td>
+                        <td>{doctor.Age}</td>
+                        <td>{doctor.Gender}</td>
+                        <td>{doctor.Nationality}</td>
+                        <td>{doctor.DOB}</td>
+                        <td>{doctor.EducationQualification}</td>
+                        <td>{doctor.HigherQualification}</td>
                       </tr>
                     ))}
-                  </tbody>
-                </Table>
-              </div>
-            </Card.Body>
-          </Card>
+                </tbody>
+              </Table>
+            </div>
+          </Card.Body>
+        </Card>
+        
         );
       case 'approveDoctors':
         return (
           <Card>
-            <Card.Body>
-              <h3>Approve Doctors</h3>
-              <div className="table-responsive">
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>First Name</th>
-                      <th>Last Name</th>
-                      <th>Phone</th>
-                      <th>Email</th>
-                      <th>Address</th>
-                      <th>Locality</th>
-                      <th>Age</th>
-                      <th>Gender</th>
-                      <th>Nationality</th>
-                      <th>DOB</th>
-                      <th>Education Qualification</th>
-                      <th>Higher Qualification</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {doctors.map((doctor) => (
+          <Card.Body>
+            <h3>Approve Doctors</h3>
+            <div className="table-responsive">
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>Locality</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Nationality</th>
+                    <th>DOB</th>
+                    <th>Education Qualification</th>
+                    <th>Higher Qualification</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {doctors
+                    .filter((doctor) => doctor.status === 'pending')
+                    .map((doctor) => (
                       <tr key={doctor.id}>
                         <td>{doctor.id}</td>
                         <td>{doctor.firstName}</td>
@@ -148,36 +158,32 @@ const AdminPage = () => {
                         <td>{doctor.EducationQualification}</td>
                         <td>{doctor.HigherQualification}</td>
                         <td>
-                          {doctor.status === 'pending' ? (
-                            <div className="d-flex">
-                              <Button
-                                variant="success"
-                                size="sm"
-                                className="me-2" // Margin end for spacing
-                                onClick={() => approveDoctor(doctor.id)}
-                              >
-                                Approve
-                              </Button>
-                              <Button
-                                variant="danger"
-                                size="sm"
-                                className="me-2" // Margin end for spacing
-                                onClick={() => rejectDoctor(doctor.id)}
-                              >
-                                Reject
-                              </Button>
-                            </div>
-                          ) : (
-                            'Approved'
-                          )}
+                          <div className="d-flex">
+                            <Button
+                              variant="success"
+                              size="sm"
+                              className="me-2"
+                              onClick={() => approveDoctor(doctor.id)}
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              variant="danger"
+                              size="sm"
+                              onClick={() => rejectDoctor(doctor.id)}
+                            >
+                              Reject
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))}
-                  </tbody>
-                </Table>
-              </div>
-            </Card.Body>
-          </Card>
+                </tbody>
+              </Table>
+            </div>
+          </Card.Body>
+        </Card>
+        
         );
       case 'viewPatients':
         return (
@@ -239,7 +245,7 @@ const AdminPage = () => {
         </Col>
         <Col md={10}>
           <div className="text-center mt-4">
-            <Button variant="secondary" size="sm" className="mb-4">
+            <Button variant="secondary"  onClick={handleBack} size="sm" className="mb-4">
               Back
             </Button>
           </div>

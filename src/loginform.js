@@ -16,20 +16,23 @@ const LoginPage = () => {
       if (role === 'Admin') {
         response = await axios.post('http://localhost:5000/api/admin/login', { email, password });
       } else if (role === 'Doctor') {
-        response = await axios.post('/api/doctor/login', { email, password });
+        response = await axios.post('http://localhost:5000/api/doctor/login', { email, password });
       } else if (role === 'Patient') {
-        response = await axios.post('/api/patient/login', { email, password });
+        response = await axios.post('http://localhost:5000/api/patient/login', { email, password });
       }
 
       if (response && response.data.success) {
         console.log(`Logged in as ${role}`);
+       
         // Navigate to the respective dashboard or page
         if (role === 'Admin') {
           navigate('/adminpage');
         } else if (role === 'Doctor') {
           navigate('/doctorpage');
         } else if (role === 'Patient') {
-          navigate('/patientpage');
+          const userId = response.data.patient.id; // Ensure the backend returns the user's ID as 'id'
+          console.log("userId",userId)
+          navigate(`/patientprofile/${userId}`); // Pass the patient ID to the patient profile page
         }
       } else {
         console.log('Login failed');
@@ -48,7 +51,7 @@ const LoginPage = () => {
   return (
     <Container className="d-flex align-items-center justify-content-center vh-100">
       <Row className="justify-content-center">
-        <Col md={18} lg={16}> {/* Adjusted column width */}
+        <Col md={18} lg={16}> {/* Adjusted column width for better responsiveness */}
           <Card className="p-4 shadow-sm">
             <Card.Body>
               <Button variant="secondary" onClick={handleBack}>Back</Button>{' '}

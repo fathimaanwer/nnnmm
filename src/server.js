@@ -71,30 +71,34 @@ app.get('/api/doctors', (req, res) => {
 });
 
 // API endpoint to approve a doctor
-app.put('/api/doctors/approve', (req, res) => {
-  const { name, specialization } = req.body;
-  const sql = 'UPDATE doctoreg SET status = ? WHERE name = ? AND specialization = ?';
-  db.query(sql, ['approved', name, specialization], (err, result) => {
+app.put('/api/doctors/approve/:doctorId', (req, res) => {
+  const { doctorId } = req.params;
+  const sql = 'UPDATE doctoreg SET status = ? WHERE id = ?';
+  
+  db.query(sql, ['approved', doctorId], (err, result) => {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
     }
-    res.json({ message: 'Doctor approved successfully' });
+    res.json({ success: true, message: 'Doctor approved successfully' });
   });
 });
 
+
 // API endpoint to reject a doctor
-app.put('/api/doctors/reject', (req, res) => {
-  const { name, specialization } = req.body;
-  const sql = 'UPDATE doctoreg SET status = ? WHERE name = ? AND specialization = ?';
-  db.query(sql, ['rejected', name, specialization], (err, result) => {
+app.put('/api/doctors/reject/:doctorId', (req, res) => {
+  const { doctorId } = req.params;
+  const sql = 'UPDATE doctoreg SET status = ? WHERE id = ?';
+  
+  db.query(sql, ['rejected', doctorId], (err, result) => {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
     }
-    res.json({ message: 'Doctor rejected successfully' });
+    res.json({ success: true, message: 'Doctor rejected successfully' });
   });
 });
+
 
 // API endpoint to register a doctor
 app.post('/doctoreg', (req, res) => {
@@ -186,10 +190,63 @@ app.post('/api/patient/login', (req, res) => {
     }
 
     if (results.length > 0) {
-      res.send({ success: true, message: 'Patient logged in successfully' });
+      const patient = results[0];
+      console.log(patient.id)
+      res.send({
+        success: true,
+        message: 'Patient logged in successfully',
+        patient: {
+          id: patient.id,
+          name: patient.name,
+          email: patient.email,
+          // Include other relevant fields if needed
+        }
+      });
     } else {
       res.send({ success: false, message: 'Invalid credentials' });
     }
+  });
+});
+
+app.post('/api/patients/register', (req, res) => {
+  const { name, phone, email, address, gender, password } = req.body;
+
+  const sql = 'INSERT INTO patient (name, phone_no, email, address, gender, password) VALUES (?, ?, ?, ?, ?, ?)';
+  const values = [name, phone, email, address, gender, password];
+
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('Error inserting patient data:', err);
+      return res.status(500).json({ error: 'Database insertion failed' });
+    }
+    res.status(201).json({ message: 'Patient registered successfully', patientId: result.insertId });
+  });
+});
+
+// Fetch patient details
+app.get('/api/patients/:id', (req, res) => {
+  const patientId = req.params.id;
+  const sql = 'SELECT * FROM patient WHERE id = ?';
+  db.query(sql, [patientId], (err, result) => {
+      if (err) {
+          res.status(500).json({ error: err.message });
+      } else {
+          res.json(result[0]);
+      }
+  });
+});
+
+// Update patient details
+app.put('/api/updatepatients/:id', (req, res) => {
+  const patientId = req.params.id;
+  const { name, phone_no, email, address, gender } = req.body;
+  const sql = 'UPDATE patient SET name = ?, phone_no = ?, email = ?, address = ?, gender = ? WHERE id = ?';
+  db.query(sql, [name, phone_no, email, address, gender, patientId], (err, result) => {
+      if (err) {
+          res.status(500).json({ error: err.message });
+      } else {
+          res.json({ message: 'Profile updated successfully' });
+      }
   });
 });
 
