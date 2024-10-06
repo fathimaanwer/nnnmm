@@ -315,7 +315,7 @@ function PatientProfile() {
             <div className="text-end">
               <Button
                 variant="secondary"
-                onClick={handleCloseModal}
+                onClick={handleCloseModalApp}
                 className="me-2"
               >
                 Cancel
