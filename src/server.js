@@ -368,6 +368,19 @@ app.get("/api/patients/:id", (req, res) => {
   });
 });
 
+// Fetch patient details
+app.get("/api/patients", (req, res) => {
+  const patientId = req.params.id;
+  const sql = "SELECT * FROM patient";
+  db.query(sql, [patientId], (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else {
+      res.json(result);
+    }
+  });
+});
+
 // Update patient details
 app.put("/api/updatepatients/:id", (req, res) => {
   const patientId = req.params.id;

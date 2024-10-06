@@ -30,7 +30,7 @@ const AdminPage = () => {
 
   const fetchPatients = async () => {
     try {
-      const response = await axios.get("/api/patients");
+      const response = await axios.get("http://localhost:5000/api/patients");
       setPatients(response.data);
     } catch (error) {
       console.error("Error fetching patients:", error);
@@ -211,7 +211,6 @@ const AdminPage = () => {
                       <th>ID</th>
                       <th>Name</th>
                       <th>Email</th>
-                      <th>Condition</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -220,7 +219,6 @@ const AdminPage = () => {
                         <td>{patient.id}</td>
                         <td>{patient.name}</td>
                         <td>{patient.email}</td>
-                        <td>{patient.condition}</td>
                       </tr>
                     ))}
                   </tbody>
