@@ -445,6 +445,29 @@ app.put('/api/updatedoctors/:id', (req, res) => {
     }
   );
 });
+app.get("/api/appointments/:doctorId", (req, res) => {
+  const doctorId = req.params.doctorId;
+
+  // Query to fetch appointments and join with patient details
+  const query = `
+    SELECT a.appointment_id, a.date, a.time, p.name AS patientName
+    FROM appointments a
+    JOIN patient p ON a.patient_id = p.id
+    WHERE a.doctor_id = ?;
+  `;
+
+  db.query(query, [doctorId], (err, results) => {
+    if (err) {
+      console.error("Error fetching appointments:", err);
+      return res
+        .status(500)
+        .send({ success: false, message: "Internal Server Error" });
+    }
+    console.log(results)
+    res.send({ success: true, appointments: results });
+  });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

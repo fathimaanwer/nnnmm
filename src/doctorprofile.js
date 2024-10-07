@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { Navbar, Nav, Button, Modal, Form, Container, Row, Col } from "react-bootstrap";
+import { Navbar, Nav, Button, Modal, Form, Container, Row, Col, Table } from "react-bootstrap";
 
 function DoctorProfile() {
-  const { id } = useParams();
+  const { id } = useParams(); // id is the doctor_id
   const navigate = useNavigate();
   const [profile, setProfile] = useState({
     firstName: "",
@@ -14,6 +14,7 @@ function DoctorProfile() {
     Address: "",
     dept: "",
   });
+  const [appointments, setAppointments] = useState([]); // State for appointments
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -26,7 +27,20 @@ function DoctorProfile() {
       }
     };
 
+    // Fetch appointments for this doctor
+    const fetchAppointments = async () => {
+        try {
+          const response = await axios.get(`http://localhost:5000/api/appointments/${id}`);
+          console.log("data", response.data); // Log the full response
+          setAppointments(response.data.appointments); // Extract the appointments array
+        } catch (error) {
+          console.error("Error fetching appointments:", error);
+        }
+      };
+      
+
     fetchProfile();
+    fetchAppointments();
   }, [id]);
 
   const handleChange = (e) => {
@@ -60,11 +74,9 @@ function DoctorProfile() {
     <>
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
-        <div className="position-absolute top-0 start-0 p-3">
-               
+          <div className="position-absolute top-0 start-0 p-3">
             <Button variant="secondary" onClick={handleBackClick}>Back</Button>
-                
-            </div>
+          </div>
           <Navbar.Brand href="#">Doctor Profile</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
@@ -109,11 +121,42 @@ function DoctorProfile() {
 
       <Container className="mt-5">
         {/* Back button added */}
-       
         <Row className="justify-content-center">
           <Col md={15} className="text-center">
             <h3>Welcome, Dr. {profile.firstName} {profile.lastName}</h3>
             <p>Here you can view and update your profile information.</p>
+          </Col>
+        </Row>
+
+        {/* Appointments Section */}
+        <Row className="justify-content-center mt-4">
+          <Col md={12}>
+            <h4>Your Appointments</h4>
+            {appointments.length > 0 ? (
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>Appointment ID</th>
+                    <th>Patient Name</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+  {appointments.map((appointment) => (
+    <tr key={appointment.appointment_id}>
+      <td>{appointment.appointment_id}</td>
+      <td>{appointment.patientName}</td> {/* Correct patientName */}
+      <td>{new Date(appointment.date).toLocaleDateString()}</td> {/* Format date */}
+      <td>{appointment.time}</td>
+    </tr>
+  ))}
+</tbody>
+
+              </Table>
+            ) : (
+              <p>No appointments found.</p>
+            )}
           </Col>
         </Row>
       </Container>
