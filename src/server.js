@@ -193,18 +193,23 @@ app.put("/api/doctors/approve/:doctorId", (req, res) => {
 });
 
 // API endpoint to reject a doctor
-app.put("/api/doctors/reject/:doctorId", (req, res) => {
+app.delete("/api/doctors/reject/:doctorId", (req, res) => {
   const { doctorId } = req.params;
-  const sql = "UPDATE doctoreg SET status = ? WHERE id = ?";
 
-  db.query(sql, ["rejected", doctorId], (err, result) => {
+  // SQL query to delete the doctor by doctorId
+  const deleteSql = "DELETE FROM doctoreg WHERE id = ?";
+
+  db.query(deleteSql, [doctorId], (err, result) => {
     if (err) {
-      res.status(500).json({ error: err.message });
-      return;
+      return res.status(500).json({ error: err.message });
     }
-    res.json({ success: true, message: "Doctor rejected successfully" });
+    res.json({
+      success: true,
+      message: "Doctor removed successfully",
+    });
   });
 });
+
 
 // API endpoint to register a doctor
 app.post("/doctoreg", (req, res) => {

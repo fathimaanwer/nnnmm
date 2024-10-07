@@ -13,15 +13,22 @@ function DoctorProfile() {
     Email: "",
     Address: "",
     dept: "",
+    status: "", // Add status field
   });
   const [appointments, setAppointments] = useState([]); // State for appointments
   const [showModal, setShowModal] = useState(false);
+  const [isApproved, setIsApproved] = useState(true); // State to check approval
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/doctors/${id}`);
         setProfile(response.data);
+        
+        // Check if status is approved
+        if (response.data.status !== 'approved') {
+          setIsApproved(false); // Set to false if not approved
+        }
       } catch (error) {
         console.error("Error fetching doctor profile:", error);
       }
@@ -29,16 +36,14 @@ function DoctorProfile() {
 
     // Fetch appointments for this doctor
     const fetchAppointments = async () => {
-        try {
-          const response = await axios.get(`http://localhost:5000/api/appointments/${id}`);
-          console.log("data", response.data); // Log the full response
-          setAppointments(response.data.appointments); // Extract the appointments array
-        } catch (error) {
-          console.error("Error fetching appointments:", error);
-        }
-      };
+      try {
+        const response = await axios.get(`http://localhost:5000/api/appointments/${id}`);
+        setAppointments(response.data.appointments); // Extract the appointments array
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      }
+    };
       
-
     fetchProfile();
     fetchAppointments();
   }, [id]);
@@ -113,6 +118,7 @@ function DoctorProfile() {
             variant="outline-light"
             onClick={handleShowModal}
             className="ml-auto"
+            disabled={!isApproved} // Disable if not approved
           >
             Update Profile
           </Button>
@@ -123,39 +129,44 @@ function DoctorProfile() {
         {/* Back button added */}
         <Row className="justify-content-center">
           <Col md={15} className="text-center">
-            <h3>Welcome, Dr. {profile.firstName} {profile.lastName}</h3>
-            <p>Here you can view and update your profile information.</p>
-          </Col>
-        </Row>
+            {isApproved ? (
+              <>
+                <h3>Welcome, Dr. {profile.firstName} {profile.lastName}</h3>
+                <p>Here you can view and update your profile information.</p>
 
-        {/* Appointments Section */}
-        <Row className="justify-content-center mt-4">
-          <Col md={12}>
-            <h4>Your Appointments</h4>
-            {appointments.length > 0 ? (
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    <th>Appointment ID</th>
-                    <th>Patient Name</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-  {appointments.map((appointment) => (
-    <tr key={appointment.appointment_id}>
-      <td>{appointment.appointment_id}</td>
-      <td>{appointment.patientName}</td> {/* Correct patientName */}
-      <td>{new Date(appointment.date).toLocaleDateString()}</td> {/* Format date */}
-      <td>{appointment.time}</td>
-    </tr>
-  ))}
-</tbody>
-
-              </Table>
+                {/* Appointments Section */}
+                <Row className="justify-content-center mt-4">
+                  <Col md={12}>
+                    <h4>Your Appointments</h4>
+                    {appointments.length > 0 ? (
+                      <Table striped bordered hover>
+                        <thead>
+                          <tr>
+                            <th>Appointment ID</th>
+                            <th>Patient Name</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {appointments.map((appointment) => (
+                            <tr key={appointment.appointment_id}>
+                              <td>{appointment.appointment_id}</td>
+                              <td>{appointment.patientName}</td> {/* Correct patientName */}
+                              <td>{new Date(appointment.date).toLocaleDateString()}</td> {/* Format date */}
+                              <td>{appointment.time}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    ) : (
+                      <p>No appointments found.</p>
+                    )}
+                  </Col>
+                </Row>
+              </>
             ) : (
-              <p>No appointments found.</p>
+              <h3>You have to be approved by the admin</h3> // Display pending message
             )}
           </Col>
         </Row>

@@ -65,7 +65,7 @@ const AdminPage = () => {
 
   const rejectDoctor = async (doctorId) => {
     try {
-      const response = await axios.put(
+      const response = await axios.delete(
         `http://localhost:5000/api/doctors/reject/${doctorId}`
       );
       if (response.data.success) {
