@@ -26,9 +26,12 @@ const LoginPage = () => {
        
         // Navigate to the respective dashboard or page
         if (role === 'Admin') {
+          
           navigate('/adminpage');
         } else if (role === 'Doctor') {
-          navigate('/doctorpage');
+          const userId = response.data.doctorId;
+          console.log("doctorid",userId);
+          navigate(`/doctorpage/${userId}`);
         } else if (role === 'Patient') {
           const userId = response.data.patient.id; // Ensure the backend returns the user's ID as 'id'
           console.log("userId",userId)

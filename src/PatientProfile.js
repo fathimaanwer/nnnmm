@@ -11,7 +11,7 @@ import {
   Row,
   Col,
 } from "react-bootstrap";
-
+import { useNavigate } from "react-router-dom";
 function PatientProfile() {
   const { id } = useParams();
   const [profile, setProfile] = useState({
@@ -123,11 +123,19 @@ function PatientProfile() {
     const year = tomorrow.getFullYear();
     return `${year}-${month}-${day}`;
   };
-
+  const navigate = useNavigate();
+  const handleBackClick = () => {
+    navigate(-1); // Navigates back to the previous page
+  };
   return (
     <>
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
+        <div className="position-absolute top-0 start-0 p-3">
+               
+               <Button variant="secondary" onClick={handleBackClick}>Back</Button>
+                   
+               </div>
           <Navbar.Brand href="#">Patient Profile</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">

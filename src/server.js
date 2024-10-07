@@ -297,12 +297,19 @@ app.post("/api/doctor/login", (req, res) => {
     }
 
     if (results.length > 0) {
-      res.send({ success: true, message: "Doctor logged in successfully" });
+      // If login is successful, send the doctor ID and success message to the frontend
+      const doctor = results[0];
+      res.send({
+        success: true,
+        message: "Doctor logged in successfully",
+        doctorId: doctor.id, // Send the doctor's ID
+      });
     } else {
       res.send({ success: false, message: "Invalid credentials" });
     }
   });
 });
+
 
 // Login route for Patient
 app.post("/api/patient/login", (req, res) => {
@@ -400,6 +407,44 @@ app.put("/api/updatepatients/:id", (req, res) => {
   );
 });
 
+app.get('/api/doctors/:id', (req, res) => {
+  const doctorId = req.params.id;
+  const query = 'SELECT * FROM doctoreg WHERE id = ?';
+
+  db.query(query, [doctorId], (err, results) => {
+    if (err) {
+      console.error('Error fetching doctor profile:', err);
+      return res.status(500).json({ message: 'Error fetching doctor profile' });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+    res.json(results[0]);
+  });
+});
+
+// Route to update a doctor's profile
+app.put('/api/updatedoctors/:id', (req, res) => {
+  const doctorId = req.params.id;
+  const { firstName,lastName, Phone, Email, Address, dept } = req.body;
+
+  const query = `
+    UPDATE doctoreg 
+    SET firstName = ?,lastName = ?, Phone = ?, email = ?, Address = ?, dept = ?
+    WHERE id = ?`;
+
+  db.query(
+    query,
+    [firstName,lastName, Phone, Email, Address, dept, doctorId],
+    (err, results) => {
+      if (err) {
+        console.error('Error updating doctor profile:', err);
+        return res.status(500).json({ message: 'Error updating doctor profile' });
+      }
+      res.json({ message: 'Doctor profile updated successfully' });
+    }
+  );
+});
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

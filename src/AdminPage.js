@@ -211,6 +211,9 @@ const AdminPage = () => {
                       <th>ID</th>
                       <th>Name</th>
                       <th>Email</th>
+                      <th>Phone Number</th>
+                      <th>Address</th>
+                      <th>Gender</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -219,6 +222,9 @@ const AdminPage = () => {
                         <td>{patient.id}</td>
                         <td>{patient.name}</td>
                         <td>{patient.email}</td>
+                        <td>{patient.phone_no}</td>
+                        <td>{patient.address}</td>
+                        <td>{patient.gender}</td>
                       </tr>
                     ))}
                   </tbody>

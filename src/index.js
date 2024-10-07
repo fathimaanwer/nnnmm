@@ -11,6 +11,7 @@ import RegistrationForm  from'./patientreg';
 import PendingDoctors from './pendingdoc';
 import DoctorLoginForm from './doctorlogg';
 import AdminPage from './AdminPage';
+import DoctorProfile from './doctorprofile';
 import PatientRegistration from './PatientRegistration';
 import PatientProfile from './PatientProfile';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -30,6 +31,7 @@ ReactDOM.render(
         <Route path="/doctorlogg" element={<DoctorLoginForm  />} />
         <Route path="/patientregistration" element={<PatientRegistration/>}/>
         <Route path="/patientprofile/:id" element={<PatientProfile />} />
+        <Route path="/doctorpage/:id" element={<DoctorProfile/>}/>
         {/* Add more routes as needed */}
       </Routes>
     </BrowserRouter>

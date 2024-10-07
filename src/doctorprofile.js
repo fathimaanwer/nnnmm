@@ -1,127 +1,202 @@
-import React from 'react';
-import './d1.css'; // Import your CSS file
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
+import { Navbar, Nav, Button, Modal, Form, Container, Row, Col } from "react-bootstrap";
 
-const DoctorProfile = () => {
-    return (
-        <html>
-            <head>
-                <meta charset="UTF-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                <title>hospital website</title>
-                <link rel="stylesheet" href="d1.css" />
-                <style>
-                    {`
-                        table th, td {
-                            border: 1px black;
-                            padding: 5px;
-                            border-style: double;
-                        }
-                    `}
-                </style>
-            </head>
-            <body>
-                <article>
-                    <div className="navbar">
-                        <div className="icon">
-                            <div className="logo">
-                                <h2 style={{ fontSize: '40px', marginLeft: '50px', color: 'hsl(189, 50%, 20%)' }}>
-                                    <b>Care&Cure</b>
-                                </h2>
-                            </div>
-                        </div>
-                    </div>
+function DoctorProfile() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState({
+    firstName: "",
+    lastName: "",
+    Phone: "",
+    Email: "",
+    Address: "",
+    dept: "",
+  });
+  const [showModal, setShowModal] = useState(false);
 
-                    <div className="container">
-                        <h3 style={{ borderBottom: '1px solid grey' }}></h3>
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/doctors/${id}`);
+        setProfile(response.data);
+      } catch (error) {
+        console.error("Error fetching doctor profile:", error);
+      }
+    };
 
-                        <div className="qualification">
-                            <button
-                                style={{
-                                    width: '20%',
-                                    height: '400px',
-                                    marginLeft: '100px',
-                                    backgroundColor: 'rgb(216, 237, 238)',
-                                    borderColor: 'white',
-                                    borderRadius: '10px'
-                                }}
-                            >
-                                <img src="d4.jpg" alt="Doctor" />
-                            </button>
-                            <br />
-                            <div className="name" style={{ marginRight: '550px' }}>
-                                <h2>
-                                    <b>Dr.Elsa</b>
-                                </h2>
-                                <h3>Dermatology & Cosmetology</h3>
-                                <h3>Designation: Consultant</h3>
-                                <br />
-                                <br />
-                                <h3>Recommend to your loved ones</h3>
-                                <br />
-                                <br />
-                                <button
-                                    style={{
-                                        width: '60%',
-                                        height: '50px',
-                                        borderRadius: '10px',
-                                        borderColor: 'rgb(101, 146, 146)',
-                                        backgroundColor: 'rgb(196, 235, 235)'
-                                    }}
-                                >
-                                    <b>Book an Appointment</b>
-                                </button>
-                            </div>
-                        </div>
+    fetchProfile();
+  }, [id]);
 
-                        <h2 style={{ borderBottom: '1px solid grey' }}></h2>
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile({
+      ...profile,
+      [name]: value,
+    });
+  };
 
-                        <h2 style={{ marginLeft: '50px' }}>Doctor's Profile</h2>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put(`http://localhost:5000/api/updatedoctors/${id}`, profile);
+      alert("Profile updated successfully");
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
 
-                        <br />
+  const handleShowModal = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
 
-                        <h3 style={{ marginLeft: '50px' }}>Timings</h3>
+  // Back button click handler
+  const handleBackClick = () => {
+    navigate(-1); // Navigates back to the previous page
+  };
 
-                        <table style={{ marginLeft: '50px' }}>
-                            <tr>
-                                <td>
-                                    <b>Monday</b>
-                                </td>
-                                <td>09:00AM TO 04:50</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <b>Wednesday</b>
-                                </td>
-                                <td>09:00AM TO 04:50</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <b>Friday</b>
-                                </td>
-                                <td>09:00AM TO 04:50</td>
-                            </tr>
-                        </table>
-                    </div>
+  return (
+    <>
+      <Navbar bg="dark" variant="dark" expand="lg">
+        <Container>
+        <div className="position-absolute top-0 start-0 p-3">
+               
+            <Button variant="secondary" onClick={handleBackClick}>Back</Button>
+                
+            </div>
+          <Navbar.Brand href="#">Doctor Profile</Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Item className="me-3">
+                <span className="text-white">
+                  <strong>Name:</strong> {profile.firstName} {profile.lastName}
+                </span>
+              </Nav.Item>
+              <Nav.Item className="me-3">
+                <span className="text-white">
+                  <strong>Phone:</strong> {profile.Phone}
+                </span>
+              </Nav.Item>
+              <Nav.Item className="me-3">
+                <span className="text-white">
+                  <strong>Email:</strong> {profile.Email}
+                </span>
+              </Nav.Item>
+              <Nav.Item className="me-3">
+                <span className="text-white">
+                  <strong>Address:</strong> {profile.Address}
+                </span>
+              </Nav.Item>
+              <Nav.Item>
+                <span className="text-white">
+                  <strong>Specialization:</strong> {profile.dept}
+                </span>
+              </Nav.Item>
+            </Nav>
+          </Navbar.Collapse>
+          <br />
+          <Button
+            variant="outline-light"
+            onClick={handleShowModal}
+            className="ml-auto"
+          >
+            Update Profile
+          </Button>
+        </Container>
+      </Navbar>
 
-                    <h4 style={{ borderBottom: '1px solid gray' }}></h4>
+      <Container className="mt-5">
+        {/* Back button added */}
+       
+        <Row className="justify-content-center">
+          <Col md={15} className="text-center">
+            <h3>Welcome, Dr. {profile.firstName} {profile.lastName}</h3>
+            <p>Here you can view and update your profile information.</p>
+          </Col>
+        </Row>
+      </Container>
 
-                    <div
-                        className="ads"
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-evenly',
-                            flexWrap: 'wrap',
-                            backgroundColor: 'rgb(101, 146, 146)'
-                        }}
-                    >
-                        <h3>Contact Us on<br />9404330388</h3>
-                        <h3>Emergency<br />8736257439</h3>
-                        <h3>Ambulance<br />2222 33432</h3>
-                    </div>
-                </article>
-            </body>
-        </html>
-    );
-};
+      <Modal show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Update Profile</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group controlId="formFirstName" className="mb-3">
+              <Form.Label>First Name</Form.Label>
+              <Form.Control
+                type="text"
+                name="firstName"
+                value={profile.firstName}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+            <Form.Group controlId="formLastName" className="mb-3">
+              <Form.Label>Last Name</Form.Label>
+              <Form.Control
+                type="text"
+                name="lastName"
+                value={profile.lastName}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+            <Form.Group controlId="formPhone" className="mb-3">
+              <Form.Label>Phone</Form.Label>
+              <Form.Control
+                type="number"
+                name="Phone"
+                value={profile.Phone}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+            <Form.Group controlId="formEmail" className="mb-3">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                name="Email"
+                value={profile.Email}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+            <Form.Group controlId="formAddress" className="mb-3">
+              <Form.Label>Address</Form.Label>
+              <Form.Control
+                type="text"
+                name="Address"
+                value={profile.Address}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+            <Form.Group controlId="formSpecialization" className="mb-3">
+              <Form.Label>Specialization</Form.Label>
+              <Form.Control
+                type="text"
+                name="dept"
+                value={profile.dept}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+            <div className="text-end">
+              <Button variant="secondary" onClick={handleCloseModal} className="me-2">
+                Cancel
+              </Button>
+              <Button variant="primary" type="submit">
+                Save Changes
+              </Button>
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
+    </>
+  );
+}
 
 export default DoctorProfile;
