@@ -28,7 +28,11 @@ function PatientProfile() {
   });
   const [showModal, setShowModal] = useState(false);
   const [showModalApp, setShowModalApp] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false); // New state for receipt modal
+  const [appointmentDetails, setAppointmentDetails] = useState({}); // To store the details of the booked appointment
   const [docs, setDocs] = useState([]);
+
+  const handleCloseReceipt = () => setShowReceipt(false);
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -71,6 +75,13 @@ function PatientProfile() {
       ...docApp,
       [name]: value,
     });
+    const selectedDoctor = docs.find((doc) => doc.id === parseInt(value));
+  if (selectedDoctor) {
+    setDocApp((prevState) => ({
+      ...prevState,
+      doctorName: `${selectedDoctor.firstName} ${selectedDoctor.lastName}`,
+    }));
+  }
     console.log(docApp);
   };
 
@@ -102,6 +113,16 @@ function PatientProfile() {
         );
         alert("Appointment Booked successfully");
         setShowModalApp(false);
+
+        setAppointmentDetails({
+          
+          doctor: docApp.doctorName,
+          time: docApp.time,
+          date: docApp.date,
+        });
+
+        // Show receipt modal after successful booking
+        setShowReceipt(true);
       }
     } catch (error) {
       console.error("Error Booking Appointment :", error);
@@ -112,7 +133,7 @@ function PatientProfile() {
   const handleCloseModal = () => setShowModal(false);
   const handleShowModalApp = () => setShowModalApp(true);
   const handleCloseModalApp = () => setShowModalApp(false);
-
+  
   const getTomorrowDate = () => {
     const today = new Date();
     const tomorrow = new Date(today);
@@ -333,6 +354,22 @@ function PatientProfile() {
               </Button>
             </div>
           </Form>
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={showReceipt} onHide={handleCloseReceipt} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Appointment Receipt</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p><strong>Doctor:</strong> {docApp.doctorName}</p>
+          <p><strong>Date:</strong> {appointmentDetails.date}</p>
+          <p><strong>Time:</strong> {appointmentDetails.time}</p>
+          <div className="text-end">
+            <Button variant="secondary" onClick={handleCloseReceipt}>
+              Close
+            </Button>
+          </div>
         </Modal.Body>
       </Modal>
     </>
