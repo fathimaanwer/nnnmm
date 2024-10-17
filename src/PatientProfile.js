@@ -12,6 +12,7 @@ import {
   Col,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import './PatientProfile.css';
 function PatientProfile() {
   const { id } = useParams();
   const [profile, setProfile] = useState({
@@ -357,21 +358,23 @@ function PatientProfile() {
         </Modal.Body>
       </Modal>
 
-      <Modal show={showReceipt} onHide={handleCloseReceipt} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Appointment Receipt</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p><strong>Doctor:</strong> {docApp.doctorName}</p>
-          <p><strong>Date:</strong> {appointmentDetails.date}</p>
-          <p><strong>Time:</strong> {appointmentDetails.time}</p>
-          <div className="text-end">
-            <Button variant="secondary" onClick={handleCloseReceipt}>
-              Close
-            </Button>
-          </div>
-        </Modal.Body>
-      </Modal>
+      <Modal show={showReceipt} onHide={handleCloseReceipt} centered className="custom-modal">
+  <Modal.Header closeButton className="modal-header">
+    <Modal.Title style={{ textAlign: 'center', width: '100%' }}>Receipt</Modal.Title>
+  </Modal.Header>
+  <Modal.Body className="modal-body">
+    <p><strong>Doctor:</strong> {docApp.doctorName}</p>
+    <p><strong>Date:</strong> {appointmentDetails.date}</p>
+    <p><strong>Time:</strong> {appointmentDetails.time}</p>
+    {/* <div className="text-center">
+      <Button variant="secondary" onClick={handleCloseReceipt}>
+        Close
+      </Button>
+    </div> */}
+  </Modal.Body>
+</Modal>
+
+
     </>
   );
 }
